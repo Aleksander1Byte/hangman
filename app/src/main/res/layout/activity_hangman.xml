@@ -56,11 +56,14 @@
         android:id="@+id/letters"
         android:layout_width="370dp"
         android:layout_height="107dp"
+        android:layout_marginTop="52dp"
         android:gravity="center"
         android:hint="Введёные буквы:"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:textSize="30sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.39"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/winlose"
