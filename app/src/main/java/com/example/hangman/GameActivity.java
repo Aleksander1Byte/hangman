@@ -90,13 +90,25 @@ public class GameActivity extends AppCompatActivity {
                     if (cnt == 7) {
                         winlose.setText("Проигрыш!");
                         guessedLettersView.setText(wordToGuess.toUpperCase());  // word reveal
-                        finish();
+                        btnEnter.setText("Назад");
+                        btnEnter.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                finish();
+                            }
+                        });
                     }
                 }
 
                 if (toGuess.indexOf("_") == -1) {
                     winlose.setText("Победа!");
-                    finish();
+                    btnEnter.setText("Назад");
+                    btnEnter.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            finish();
+                        }
+                    });
                 }
 
             }

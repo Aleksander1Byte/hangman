@@ -56,7 +56,7 @@
         android:id="@+id/letters"
         android:layout_width="370dp"
         android:layout_height="107dp"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="68dp"
         android:gravity="center"
         android:hint="Введёные буквы:"
         android:textSize="30sp"
