@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     StringBuilder guessedLetters = new StringBuilder();
     String wordToGuess, playerInp;
     String alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
-    int cnt = 0;
+    int cnt = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         btnEnter = findViewById(R.id.btn);
         inp = findViewById(R.id.input);
         hangman_image = findViewById(R.id.hangman);
+        hangman_image.setImageResource(getResources().getIdentifier("main_" + cnt, "drawable", getPackageName()));
         getWord();
     }
 
