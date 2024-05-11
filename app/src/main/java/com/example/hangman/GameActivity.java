@@ -57,6 +57,7 @@ public class GameActivity extends AppCompatActivity {
         intent = getIntent();
 
         campaign = intent.getBooleanExtra("campaign", false);
+        campaign_cnt = intent.getIntExtra("campaign_counter", 0);
 
         guessed = findViewById(R.id.textView);
         guessedLettersView = findViewById(R.id.letters);
@@ -109,11 +110,12 @@ public class GameActivity extends AppCompatActivity {
                     hangman_image.setImageResource(getResources().getIdentifier("main_" + cnt, "drawable", getPackageName()));
                     if (cnt == 7) {
                         winlose.setText("Проигрыш!");
-                        guessedLettersView.setText(wordToGuess.toUpperCase());  // word reveal
+                        if (!campaign) guessedLettersView.setText(wordToGuess.toUpperCase());  // word reveal
                         btnEnter.setText("Назад");
                         btnEnter.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                setResult(RESULT_OK, intent);
                                 finish();
                             }
                         });
@@ -126,6 +128,10 @@ public class GameActivity extends AppCompatActivity {
                     btnEnter.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
+                            if (campaign) {
+                                intent.putExtra("campaign_counter", campaign_cnt + 1);
+                            }
+                            setResult(RESULT_OK, intent);
                             finish();
                         }
                     });

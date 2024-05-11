@@ -83,18 +83,20 @@ public class MainActivity extends AppCompatActivity {
         btnOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), GameActivity.class);
+                Intent intent = new Intent(MainActivity.this, GameActivity.class);
                 intent.putExtra("campaign", false);
-                view.getContext().startActivity(intent);
+                intent.putExtra("campaign_counter", 0);
+                MainActivity.this.startActivityForResult(intent, 11);
             }
         });
 
         btnOffline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), GameActivity.class);
+                Intent intent = new Intent(MainActivity.this, GameActivity.class);
                 intent.putExtra("campaign", true);
-                view.getContext().startActivity(intent);
+                intent.putExtra("campaign_counter", cnt);
+                MainActivity.this.startActivityForResult(intent, 11);
             }
         });
 
@@ -112,6 +114,23 @@ public class MainActivity extends AppCompatActivity {
 
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (data.getBooleanExtra("campaign", false)) {
+                cnt = data.getIntExtra("campaign_counter", 0);
+                System.out.println(cnt);
+                File file = new File("/data/user/0/com.example.hangman/files/hangman_count.txt");
+                if (file.exists()) {
+                    try {
+                        update_counter(file);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
         }
     }
 }
