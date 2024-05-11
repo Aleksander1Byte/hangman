@@ -12,6 +12,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,8 +30,17 @@ public class MainActivity extends AppCompatActivity {
     Button btnOnline;
     Button btnOffline;
     String data1;
+    int cnt;
 
-    void get_content() throws IOException {
+    void update_counter(File file) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file);
+        OutputStreamWriter osw = new OutputStreamWriter(fos);
+        osw.write(cnt);
+        osw.close();
+        fos.close();
+    }
+
+    void get_content(File file) throws IOException {
             OkHttpClient client = new OkHttpClient();
             String url = "http://192.168.0.179:8000/" + 50;
             Request request = new Request.Builder().url(url).build();
@@ -42,7 +52,13 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         try {
                             JSONObject jsonObject = new JSONObject(response.body().string());
-                            data1 = jsonObject.get("response").toString();
+                            data1 = jsonObject.toString();
+                            FileOutputStream fos = new FileOutputStream(file);
+                            OutputStreamWriter osw = new OutputStreamWriter(fos);
+                            osw.write(data1);
+                            osw.close();
+                            fos.close();
+                            System.out.println("File successfully written to external storage!");
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
@@ -85,13 +101,12 @@ public class MainActivity extends AppCompatActivity {
                 File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hangman.txt");
                 if (!file.exists()) {
                     file.createNewFile();
-                    get_content();
-                    FileOutputStream fos = new FileOutputStream(file);
-                    OutputStreamWriter osw = new OutputStreamWriter(fos);
-                    osw.write(data1);
-                    osw.close();
-                    fos.close();
-                    System.out.println("File successfully written to external storage!");
+                    get_content(file);
+                }
+                file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hangman_count.txt");
+                if (!file.exists()) {
+                    file.createNewFile();
+                    update_counter(file);
                 }
             }
         } catch (IOException e) {
