@@ -70,6 +70,7 @@ public class GameActivity extends AppCompatActivity {
             public void onClick(View v) {
                 boolean wrongGuess = true;
                 playerInp = inp.getText().toString().toLowerCase();
+                inp.setText("");
 
                 for (int i = 0; i < wordToGuess.length(); i++) {
 
