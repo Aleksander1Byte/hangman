@@ -41,35 +41,36 @@ public class MainActivity extends AppCompatActivity {
     }
 
     void get_content(File file) throws IOException {
-            OkHttpClient client = new OkHttpClient();
-            String url = "http://192.168.0.179:8000/" + 50;
-            Request request = new Request.Builder().url(url).build();
-            client.newCall(request).enqueue(new Callback() {
-                @Override
-                public void onResponse(Call call, final Response response) throws IOException {
-                    if (!response.isSuccessful()) {
-                        throw new IOException("Unexpected code " + response);
-                    } else {
-                        try {
-                            JSONObject jsonObject = new JSONObject(response.body().string());
-                            data1 = jsonObject.toString();
-                            FileOutputStream fos = new FileOutputStream(file);
-                            OutputStreamWriter osw = new OutputStreamWriter(fos);
-                            osw.write(data1);
-                            osw.close();
-                            fos.close();
-                            System.out.println("File successfully written to external storage!");
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
+        OkHttpClient client = new OkHttpClient();
+        String url = "http://192.168.0.179:8000/" + 50;
+        Request request = new Request.Builder().url(url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onResponse(Call call, final Response response) throws IOException {
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                } else {
+                    try {
+                        JSONObject jsonObject = new JSONObject(response.body().string());
+                        data1 = jsonObject.toString();
+                        FileOutputStream fos = new FileOutputStream(file);
+                        OutputStreamWriter osw = new OutputStreamWriter(fos);
+                        osw.write(data1);
+                        osw.close();
+                        fos.close();
+                        System.out.println("File successfully written to external storage!");
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
                 }
-                @Override
-                public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+            }
+
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+        });
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +85,8 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), GameActivity.class);
                 intent.putExtra("campaign", false);
-                view.getContext().startActivity(intent);}
+                view.getContext().startActivity(intent);
+            }
         });
 
         btnOffline.setOnClickListener(new View.OnClickListener() {
@@ -92,23 +94,22 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), GameActivity.class);
                 intent.putExtra("campaign", true);
-                view.getContext().startActivity(intent);}
+                view.getContext().startActivity(intent);
+            }
         });
 
         try {
-            String state = Environment.getExternalStorageState();
-            if (Environment.MEDIA_MOUNTED.equals(state)) {
-                File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hangman.txt");
-                if (!file.exists()) {
-                    file.createNewFile();
-                    get_content(file);
-                }
-                file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hangman_count.txt");
-                if (!file.exists()) {
-                    file.createNewFile();
-                    update_counter(file);
-                }
+            File file = new File("/data/user/0/com.example.hangman/files/hangman.txt");
+            if (!file.exists()) {
+                file.createNewFile();
+                get_content(file);
             }
+            file = new File("/data/user/0/com.example.hangman/files/hangman_count.txt");
+            if (!file.exists()) {
+                file.createNewFile();
+                update_counter(file);
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }

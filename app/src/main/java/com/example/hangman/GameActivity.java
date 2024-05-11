@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,7 +14,17 @@ import android.widget.ImageView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -34,6 +45,7 @@ public class GameActivity extends AppCompatActivity {
     String alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
     boolean campaign;
     int cnt = 1;
+    int campaign_cnt = 0;
 
     Intent intent;
 
@@ -53,7 +65,11 @@ public class GameActivity extends AppCompatActivity {
         inp = findViewById(R.id.input);
         hangman_image = findViewById(R.id.hangman);
         hangman_image.setImageResource(getResources().getIdentifier("main_" + cnt, "drawable", getPackageName()));
-        getWord();
+        try {
+            getWord();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void setup_rest() {
@@ -120,36 +136,63 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    public void getWord() {
-        OkHttpClient client = new OkHttpClient();
-        String url = "http://192.168.0.179:8000/one";
-        Request request = new Request.Builder().url(url).build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onResponse(Call call, final Response response) throws IOException {
-                if (!response.isSuccessful()) {
-                    throw new IOException("Unexpected code " + response);
-                } else {
-                    try {
-                        JSONObject jsonObject = new JSONObject(response.body().string());
-                        wordToGuess = jsonObject.get("response").toString();
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                    GameActivity.this.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            winlose.setText("");  // To get rid of Загрузка...
-                            setup_rest();
-                        }
-                    });
+    public void getWord() throws IOException {
+        if (campaign) {
+            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hangman.txt");
+            try {
+                FileInputStream fileInputStream = openFileInput("hangman.txt");
+                InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                StringBuffer stringBuffer = new StringBuffer();
+                String lines;
+                while ((lines = bufferedReader.readLine()) != null) {
+                    stringBuffer.append(lines + "\n");
                 }
-            }
-
-            @Override
-            public void onFailure(Call call, IOException e) {
+                JSONObject jsonObject = new JSONObject(stringBuffer.toString());
+                wordToGuess = jsonObject.get("response").toString();
+                List<String> myList = new ArrayList<String>(Arrays.asList(wordToGuess.substring(1, wordToGuess.length() - 1).split(",")));
+                wordToGuess = myList.get(campaign_cnt);
+                wordToGuess = wordToGuess.substring(1, wordToGuess.length() - 1);
+                winlose.setText("");  // To get rid of Загрузка...
+                setup_rest();
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
-        });
+        } else {
+            OkHttpClient client = new OkHttpClient();
+            String url = "http://192.168.0.179:8000/one";
+            Request request = new Request.Builder().url(url).build();
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onResponse(Call call, final Response response) throws IOException {
+                    if (!response.isSuccessful()) {
+                        throw new IOException("Unexpected code " + response);
+                    } else {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response.body().string());
+                            wordToGuess = jsonObject.get("response").toString();
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        GameActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                winlose.setText("");  // To get rid of Загрузка...
+                                setup_rest();
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onFailure(Call call, IOException e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }
