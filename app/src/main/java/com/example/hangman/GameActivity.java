@@ -32,6 +32,7 @@ public class GameActivity extends AppCompatActivity {
     StringBuilder guessedLetters = new StringBuilder();
     String wordToGuess, playerInp;
     String alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    boolean campaign;
     int cnt = 1;
 
     Intent intent;
@@ -42,6 +43,8 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_hangman);
 
         intent = getIntent();
+
+        campaign = intent.getBooleanExtra("campaign", false);
 
         guessed = findViewById(R.id.textView);
         guessedLettersView = findViewById(R.id.letters);
