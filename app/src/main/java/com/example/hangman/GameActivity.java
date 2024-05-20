@@ -160,7 +160,6 @@ public class GameActivity extends AppCompatActivity {
             SQLiteDatabase db = databaseHelper.getWritableDatabase();
             Cursor cursor = db.rawQuery("SELECT word FROM items WHERE id = ?", new String[] {String.valueOf(campaign_cnt + 1),});
             if (cursor.moveToFirst()) {
-                System.out.println(cursor.getColumnIndex("word"));
                 @SuppressLint("Range") String itemName = cursor.getString(cursor.getColumnIndex("word"));
                 cursor.close();
                 wordToGuess = itemName;

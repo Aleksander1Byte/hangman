@@ -6,7 +6,6 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
 
@@ -16,12 +15,9 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
@@ -41,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
     void update_counter(File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
         OutputStreamWriter osw = new OutputStreamWriter(fos);
-        osw.write(cnt);
+        osw.write(Integer.toString(cnt));
         osw.close();
         fos.close();
     }
@@ -113,12 +109,32 @@ public class MainActivity extends AppCompatActivity {
 
         for (Word item : itemList) {
             ContentValues values = new ContentValues();
-            //values.put("id", item.getId());
             values.put("word", item.getName());
             db.insert("items", null, values);
         }
         db.close();
         System.out.println("Database was set up correctly");
+    }
+    int get_cnt(File file) {
+        String ret = "";
+
+        try {
+            FileInputStream fileInputStream = openFileInput(file.getName());
+            InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
+            BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+            StringBuffer stringBuffer = new StringBuffer();
+            String lines;
+            while ((lines = bufferedReader.readLine()) != null) {
+                stringBuffer.append(lines);
+            }
+                ret = stringBuffer.toString();
+            fileInputStream.close();
+            inputStreamReader.close();
+            bufferedReader.close();
+            } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        return Integer.parseInt(ret);
     }
 
     @Override
@@ -151,15 +167,18 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             File file = new File("/data/user/0/com.example.hangman/files/hangman.txt");
-            //if (!file.exists()) {
+            if (!file.exists()) {
                 file.createNewFile();
                 get_content(file);
-            //}
+            }
             file = new File("/data/user/0/com.example.hangman/files/hangman_count.txt");
-            //if (!file.exists()) {
+            if (!file.exists()) {
                 file.createNewFile();
                 update_counter(file);
-            //}
+            }
+            else {
+                cnt = get_cnt(file);
+            }
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -170,7 +189,6 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             if (data.getBooleanExtra("campaign", false)) {
                 cnt = data.getIntExtra("campaign_counter", 1);
-                System.out.println(cnt);
                 File file = new File("/data/user/0/com.example.hangman/files/hangman_count.txt");
                 if (file.exists()) {
                     try {
