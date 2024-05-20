@@ -2,7 +2,10 @@ package com.example.hangman;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -45,9 +48,10 @@ public class GameActivity extends AppCompatActivity {
     String alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
     boolean campaign;
     int cnt = 1;
-    int campaign_cnt = 0;
+    int campaign_cnt = 1;
 
     Intent intent;
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,9 @@ public class GameActivity extends AppCompatActivity {
         intent = getIntent();
 
         campaign = intent.getBooleanExtra("campaign", false);
-        campaign_cnt = intent.getIntExtra("campaign_counter", 0);
+        campaign_cnt = intent.getIntExtra("campaign_counter", 1);
+
+        databaseHelper = new DatabaseHelper(this);
 
         guessed = findViewById(R.id.textView);
         guessedLettersView = findViewById(R.id.letters);
@@ -151,30 +157,17 @@ public class GameActivity extends AppCompatActivity {
 
     public void getWord() throws IOException {
         if (campaign) {
-            File file = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "hangman.txt");
-            try {
-                FileInputStream fileInputStream = openFileInput("hangman.txt");
-                InputStreamReader inputStreamReader = new InputStreamReader(fileInputStream);
-                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                StringBuffer stringBuffer = new StringBuffer();
-                String lines;
-                while ((lines = bufferedReader.readLine()) != null) {
-                    stringBuffer.append(lines + "\n");
-                }
-                JSONObject jsonObject = new JSONObject(stringBuffer.toString());
-                wordToGuess = jsonObject.get("response").toString();
-                List<String> myList = new ArrayList<String>(Arrays.asList(wordToGuess.substring(1, wordToGuess.length() - 1).split(",")));
-                wordToGuess = myList.get(campaign_cnt);
-                wordToGuess = wordToGuess.substring(1, wordToGuess.length() - 1);
-                winlose.setText("");  // To get rid of Загрузка...
+            SQLiteDatabase db = databaseHelper.getWritableDatabase();
+            Cursor cursor = db.rawQuery("SELECT word FROM items WHERE id = ?", new String[] {String.valueOf(campaign_cnt + 1),});
+            if (cursor.moveToFirst()) {
+                System.out.println(cursor.getColumnIndex("word"));
+                @SuppressLint("Range") String itemName = cursor.getString(cursor.getColumnIndex("word"));
+                cursor.close();
+                wordToGuess = itemName;
                 setup_rest();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
             }
+
+            winlose.setText("");  // To get rid of Загрузка...
         } else {
             OkHttpClient client = new OkHttpClient();
             String url = "http://192.168.0.179:8000/one";

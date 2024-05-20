@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     Button btnOnline;
     Button btnOffline;
     String data1;
-    int cnt;
+    int cnt = 1;
 
     void update_counter(File file) throws IOException {
         FileOutputStream fos = new FileOutputStream(file);
@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (Word item : itemList) {
             ContentValues values = new ContentValues();
+            //values.put("id", item.getId());
             values.put("word", item.getName());
             db.insert("items", null, values);
         }
@@ -133,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(MainActivity.this, GameActivity.class);
                 intent.putExtra("campaign", false);
-                intent.putExtra("campaign_counter", 0);
+                intent.putExtra("campaign_counter", 1);
                 MainActivity.this.startActivityForResult(intent, 11);
             }
         });
@@ -150,15 +151,15 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             File file = new File("/data/user/0/com.example.hangman/files/hangman.txt");
-            if (!file.exists()) {
+            //if (!file.exists()) {
                 file.createNewFile();
                 get_content(file);
-            }
+            //}
             file = new File("/data/user/0/com.example.hangman/files/hangman_count.txt");
-            if (!file.exists()) {
+            //if (!file.exists()) {
                 file.createNewFile();
                 update_counter(file);
-            }
+            //}
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -168,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (data.getBooleanExtra("campaign", false)) {
-                cnt = data.getIntExtra("campaign_counter", 0);
+                cnt = data.getIntExtra("campaign_counter", 1);
                 System.out.println(cnt);
                 File file = new File("/data/user/0/com.example.hangman/files/hangman_count.txt");
                 if (file.exists()) {
