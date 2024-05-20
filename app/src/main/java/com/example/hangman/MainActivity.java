@@ -2,7 +2,9 @@ package com.example.hangman;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
@@ -11,13 +13,17 @@ import android.widget.Button;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -59,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
                         osw.close();
                         fos.close();
                         System.out.println("File successfully written to external storage!");
+                        setup_db(file);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -70,6 +77,47 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         });
+    }
+
+    void setup_db(File file) {
+        ArrayList<Word> itemList = new ArrayList<>();
+
+        try {
+            FileInputStream fis = openFileInput(file.getName());
+            InputStreamReader isr = new InputStreamReader(fis);
+            BufferedReader br = new BufferedReader(isr);
+            String line;
+            int id = 1;
+            while ((line = br.readLine()) != null) {
+                JSONObject jsonObject = new JSONObject(line);
+                data1 = jsonObject.get("response").toString();
+                String[] parts = data1.split(",");
+                for (int i = 0; i < parts.length; i++) {
+                    if (i == 0) parts[i] = parts[i].substring(2, parts[i].length() - 1);
+                    else if (i == parts.length - 1) parts[i] = parts[i].substring(1, parts[i].length() - 2);
+                    else parts[i] = parts[i].substring(1, parts[i].length() - 1);
+                    Word item = new Word(id, parts[i]);
+                    itemList.add(item);
+                    id++;
+                }
+            }
+            br.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+
+        DatabaseHelper databaseHelper = new DatabaseHelper(this);
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+
+        for (Word item : itemList) {
+            ContentValues values = new ContentValues();
+            values.put("word", item.getName());
+            db.insert("items", null, values);
+        }
+        db.close();
+        System.out.println("Database was set up correctly");
     }
 
     @Override
