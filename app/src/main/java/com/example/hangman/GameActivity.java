@@ -90,51 +90,58 @@ public class GameActivity extends AppCompatActivity {
             public void onClick(View v) {
                 boolean wrongGuess = true;
                 playerInp = inp.getText().toString().toLowerCase();
-                inp.setText("");
+                if (!playerInp.isEmpty()) {
+                    inp.setText("");
 
-                for (int i = 0; i < wordToGuess.length(); i++) {
+                    for (int i = 0; i < wordToGuess.length(); i++) {
 
-                    if (wordToGuess.charAt(i) == playerInp.charAt(0) && alphabet.contains(playerInp) && guessedLetters.indexOf(playerInp.toUpperCase()) == -1) {
-                        toGuess.setCharAt(i, playerInp.charAt(0));
-                        guessed.setText(toGuess);
-                        wrongGuess = false;
+                        if (wordToGuess.charAt(i) == playerInp.charAt(0) && alphabet.contains(playerInp) && guessedLetters.indexOf(playerInp.toUpperCase()) == -1) {
+                            toGuess.setCharAt(i, playerInp.charAt(0));
+                            guessed.setText(toGuess);
+                            wrongGuess = false;
+                        }
                     }
-                }
-                if (alphabet.contains(playerInp) && guessedLetters.indexOf(playerInp.toUpperCase()) == -1) {
-                    guessedLetters.append(playerInp.toUpperCase()).append(", ");
-                    guessedLettersView.setText(guessedLetters);
-                }
+                    if (alphabet.contains(playerInp) && guessedLetters.indexOf(playerInp.toUpperCase()) == -1) {
+                        guessedLetters.append(playerInp.toUpperCase()).append(", ");
+                        guessedLettersView.setText(guessedLetters);
+                    }
 
-                if (wrongGuess) {
-                    cnt += 1;
-                    hangman_image.setImageResource(getResources().getIdentifier("main_" + cnt, "drawable", getPackageName()));
-                    if (cnt == 7) {
-                        winlose.setText("Проигрыш!");
-                        if (!campaign) guessedLettersView.setText(wordToGuess.toUpperCase());  // word reveal
+                    if (wrongGuess) {
+                        cnt += 1;
+                        hangman_image.setImageResource(getResources().getIdentifier("main_" + cnt, "drawable", getPackageName()));
+                        if (cnt == 7) {
+                            winlose.setText("Проигрыш!");
+                            if (!campaign)
+                                guessedLettersView.setText(wordToGuess.toUpperCase());  // word reveal
+                            btnEnter.setText("Назад");
+                            btnEnter.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    setResult(RESULT_OK, intent);
+                                    finish();
+                                }
+                            });
+                        }
+                    }
+
+                    if (toGuess.indexOf("_") == -1) {
+                        winlose.setText("Победа!");
                         btnEnter.setText("Назад");
                         btnEnter.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
+                                if (campaign) {
+                                    intent.putExtra("campaign_counter", campaign_cnt + 1);
+                                }
                                 setResult(RESULT_OK, intent);
                                 finish();
                             }
                         });
                     }
                 }
-
-                if (toGuess.indexOf("_") == -1) {
-                    winlose.setText("Победа!");
-                    btnEnter.setText("Назад");
-                    btnEnter.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            if (campaign) {
-                                intent.putExtra("campaign_counter", campaign_cnt + 1);
-                            }
-                            setResult(RESULT_OK, intent);
-                            finish();
-                        }
-                    });
+                else {
+                    setResult(RESULT_CANCELED, intent);
+                    finish();
                 }
 
             }
