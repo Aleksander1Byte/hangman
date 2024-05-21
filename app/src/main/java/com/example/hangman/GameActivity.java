@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -195,7 +196,10 @@ public class GameActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    e.printStackTrace();
+                    Toast toast = Toast.makeText(getApplicationContext(),"Не удалось получить слово", Toast.LENGTH_SHORT);
+                    toast.show();
+                    setResult(RESULT_CANCELED);
+                    finish();
                 }
             });
         }
