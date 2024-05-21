@@ -184,9 +184,7 @@ public class GameActivity extends AppCompatActivity {
 
                 @Override
                 public void onFailure(Call call, IOException e) {
-                    Toast toast = Toast.makeText(getApplicationContext(),"Не удалось получить слово", Toast.LENGTH_SHORT);
-                    toast.show();
-                    setResult(RESULT_CANCELED);
+                    setResult(3);
                     finish();
                 }
             });

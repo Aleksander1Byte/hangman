@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -70,7 +71,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+                setResult(3);
+                finish();
             }
         });
     }
@@ -198,6 +200,10 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
+        }
+        if (resultCode == 3) {
+            Toast toast = Toast.makeText(getApplicationContext(), "Не удаётся получить ответ от сервера", Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 }
