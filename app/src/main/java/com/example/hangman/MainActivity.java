@@ -1,6 +1,8 @@
 package com.example.hangman;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentValues;
 import android.content.Intent;
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     Button btnOnline;
     Button btnOffline;
+    Button btn_to_guessed;
     String data1;
     int cnt = 1;
 
@@ -146,6 +149,15 @@ public class MainActivity extends AppCompatActivity {
 
         btnOnline = findViewById(R.id.start_online);
         btnOffline = findViewById(R.id.start_offline);
+        btn_to_guessed = findViewById(R.id.btn_guessed_words);
+
+        btn_to_guessed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, GuessedWordsActivity.class);
+                MainActivity.this.startActivityForResult(intent, 11);
+            }
+        });
 
         btnOnline.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -180,6 +192,10 @@ public class MainActivity extends AppCompatActivity {
             }
             else {
                 cnt = get_cnt(file);
+            }
+            file = new File("/data/user/0/com.example.hangman/files/hangman_guessed.txt");
+            if (!file.exists()) {
+                file.createNewFile();
             }
 
         } catch (IOException e) {

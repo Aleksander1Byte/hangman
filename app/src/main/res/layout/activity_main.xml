@@ -26,18 +26,27 @@
             android:id="@+id/start_online"
             android:layout_width="290dp"
             android:layout_height="74dp"
-            android:layout_margin="100dp"
+            android:layout_margin="30dp"
             android:text="Начать со случайным словом"
             android:textSize="18dp"
             android:backgroundTint="#3333FF"/>
 
         <Button
             android:id="@+id/start_offline"
-            android:layout_width="143dp"
+            android:layout_width="164dp"
             android:layout_height="72dp"
+            android:layout_margin="30dp"
+            android:backgroundTint="#3333FF"
             android:text="Кампания"
-            android:textSize="18dp"
-            android:backgroundTint="#3333FF"/>
+            android:textSize="18dp" />
+
+        <Button
+            android:id="@+id/btn_guessed_words"
+            android:layout_width="180dp"
+            android:layout_height="72dp"
+            android:backgroundTint="#3333FF"
+            android:text="Угаданные слова"
+            android:textSize="18dp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

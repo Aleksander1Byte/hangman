@@ -16,7 +16,11 @@ import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -35,11 +39,13 @@ public class GameActivity extends AppCompatActivity {
     StringBuilder guessedLetters = new StringBuilder();
     String wordToGuess, playerInp;
     String alphabet = "абвгдеёжзийклмнопрстуфхцчшщъыьэюя";
+    String word;
     boolean campaign;
     int cnt = 1;
     int campaign_cnt = 1;
 
     Intent intent;
+    File file;
     DatabaseHelper databaseHelper;
 
     @Override
@@ -60,12 +66,22 @@ public class GameActivity extends AppCompatActivity {
         btnEnter = findViewById(R.id.btn);
         inp = findViewById(R.id.input);
         hangman_image = findViewById(R.id.hangman);
+        file = new File("/data/user/0/com.example.hangman/files/hangman_guessed.txt");
         hangman_image.setImageResource(getResources().getIdentifier("main_" + cnt, "drawable", getPackageName()));
         try {
             getWord();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    void update_guessed(File file, String data) throws IOException {
+        FileOutputStream fos = new FileOutputStream(file, true);
+        OutputStreamWriter osw = new OutputStreamWriter(fos);
+        String lineSeparator = System.getProperty("line.separator");
+        osw.write(data + lineSeparator);
+        osw.close();
+        fos.close();
     }
 
     void setup_rest() {
@@ -121,6 +137,11 @@ public class GameActivity extends AppCompatActivity {
 
                     if (toGuess.indexOf("_") == -1) {
                         winlose.setText("Победа!");
+                        try {
+                            update_guessed(file, word);
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         btnEnter.setText("Назад");
                         btnEnter.setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -151,7 +172,7 @@ public class GameActivity extends AppCompatActivity {
             if (cursor.moveToFirst()) {
                 @SuppressLint("Range") String itemName = cursor.getString(cursor.getColumnIndex("word"));
                 cursor.close();
-                wordToGuess = itemName;
+                word = wordToGuess = itemName;
                 setup_rest();
             }
 
@@ -168,7 +189,7 @@ public class GameActivity extends AppCompatActivity {
                     } else {
                         try {
                             JSONObject jsonObject = new JSONObject(response.body().string());
-                            wordToGuess = jsonObject.get("response").toString();
+                            word = wordToGuess = jsonObject.get("response").toString();
                         } catch (JSONException e) {
                             throw new RuntimeException(e);
                         }
